@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #FF6B9D;
+    --secondary: #FF8FAB;
+    --accent: #FFB3C6;
+    --dark-bg: #1A1A2E;
+    --dark-card: #16213E;
+    --dark-border: #0F3460;
+    --dark-text: #E8E8F0;
+  }
+
+  * {
+    border-color: #e5e7eb;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900 font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .dark body {
+    @apply bg-dark-bg text-dark-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-600 transition-all duration-200 shadow-ice hover:shadow-ice-lg active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary-600 transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-dark-border shadow-sm;
+  }
+
+  .section-header {
+    @apply text-center mb-12;
+  }
+
+  .section-tag {
+    @apply text-primary font-semibold text-sm mb-2 inline-block;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-gray-900 dark:text-dark-text;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-card px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all;
+  }
+
+  .ice-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary;
+  }
+}
+
+@layer utilities {
+  .text-gradient-ice {
+    @apply bg-gradient-ice bg-clip-text text-transparent;
+  }
+
+  .text-gradient-warm {
+    @apply bg-gradient-warm bg-clip-text text-transparent;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF6B9D40;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF6B9D80;
+}
+
+/* Selection */
+::selection {
+  background: #FF6B9D30;
+  color: #FF6B9D;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid #FF6B9D;
+  outline-offset: 2px;
+}
+
+/* Ice cream drip animation */
+@keyframes drip {
+  0% { transform: scaleY(0) translateY(-100%); }
+  100% { transform: scaleY(1) translateY(0); }
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}

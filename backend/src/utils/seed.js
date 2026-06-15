@@ -1,0 +1,400 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
+const User = require('../models/User');
+const Category = require('../models/Category');
+const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
+const logger = require('../config/logger');
+
+const seed = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to MongoDB');
+
+    // Clear existing data
+    await Promise.all([
+      User.deleteMany({ role: { $in: ['admin', 'customer'] } }),
+      Category.deleteMany({}),
+      Product.deleteMany({}),
+      Coupon.deleteMany({}),
+    ]);
+    console.log('Cleared existing seed data');
+
+    // Create admin user
+    const admin = await User.create({
+      name: 'Admin',
+      email: process.env.ADMIN_EMAIL || 'admin@icecream.com',
+      password: process.env.ADMIN_PASSWORD || 'Admin123!',
+      role: 'admin',
+      isEmailVerified: true,
+      isActive: true,
+    });
+    console.log(`Admin user created: ${admin.email}`);
+
+    // Create categories
+    const categoryData = [
+      { name: 'Fruit', description: 'Fresh fruity ice cream flavors', sortOrder: 1 },
+      { name: 'Chocolate', description: 'Rich chocolate ice cream varieties', sortOrder: 2 },
+      { name: 'Vanilla', description: 'Classic vanilla based ice creams', sortOrder: 3 },
+      { name: 'Mint', description: 'Cool and refreshing mint flavors', sortOrder: 4 },
+      { name: 'Nuts', description: 'Nutty and crunchy ice cream options', sortOrder: 5 },
+      { name: 'Seasonal', description: 'Limited time seasonal specials', sortOrder: 6 },
+    ];
+
+    const categories = await Category.insertMany(categoryData);
+    console.log(`${categories.length} categories created`);
+
+    const catMap = {};
+    categories.forEach((c) => (catMap[c.name] = c._id));
+
+    // Create products
+    const productData = [
+      {
+        name: 'Strawberry Dream',
+        description: 'Creamy strawberry ice cream made with fresh strawberries. A classic summer favorite with a smooth texture and intense fruity flavor.',
+        price: 4.99,
+        comparePrice: 5.99,
+        category: catMap['Fruit'],
+        flavor: 'Strawberry',
+        ingredients: ['Cream', 'Sugar', 'Fresh Strawberries', 'Egg Yolks', 'Vanilla Extract'],
+        nutritionFacts: { calories: 220, totalFat: 11, saturatedFat: 7, sugars: 22, protein: 3, sodium: 55 },
+        stock: 150,
+        sku: 'ICE-FRU-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs'],
+        tags: ['strawberry', 'fruit', 'summer', 'classic'],
+        isFeatured: true,
+        soldCount: 342,
+        rating: 4.8,
+        reviewCount: 89,
+      },
+      {
+        name: 'Dark Chocolate Fudge',
+        description: 'Indulgent dark chocolate ice cream with rich fudge swirls. Made with premium 70% dark chocolate for an intense, sophisticated flavor.',
+        price: 5.49,
+        comparePrice: 6.49,
+        category: catMap['Chocolate'],
+        flavor: 'Dark Chocolate',
+        ingredients: ['Cream', 'Sugar', 'Dark Chocolate 70%', 'Cocoa Powder', 'Egg Yolks', 'Fudge Swirl'],
+        nutritionFacts: { calories: 280, totalFat: 15, saturatedFat: 9, sugars: 25, protein: 4, sodium: 70 },
+        stock: 120,
+        sku: 'ICE-CHO-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Soy'],
+        tags: ['chocolate', 'dark chocolate', 'fudge', 'premium'],
+        isFeatured: true,
+        soldCount: 521,
+        rating: 4.9,
+        reviewCount: 145,
+      },
+      {
+        name: 'Madagascar Vanilla Bean',
+        description: 'Premium vanilla ice cream made with authentic Madagascar vanilla beans. Pure, creamy, and classic — the perfect base flavor.',
+        price: 4.49,
+        category: catMap['Vanilla'],
+        flavor: 'Vanilla',
+        ingredients: ['Cream', 'Whole Milk', 'Sugar', 'Madagascar Vanilla Beans', 'Egg Yolks'],
+        nutritionFacts: { calories: 200, totalFat: 10, saturatedFat: 6, sugars: 20, protein: 3, sodium: 50 },
+        stock: 200,
+        sku: 'ICE-VAN-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs'],
+        tags: ['vanilla', 'classic', 'premium', 'madagascar'],
+        isFeatured: true,
+        soldCount: 289,
+        rating: 4.7,
+        reviewCount: 67,
+      },
+      {
+        name: 'Mint Chocolate Chip',
+        description: 'Refreshing mint ice cream loaded with premium dark chocolate chips. The perfect balance of cool mint and rich chocolate.',
+        price: 5.29,
+        category: catMap['Mint'],
+        flavor: 'Mint',
+        ingredients: ['Cream', 'Sugar', 'Peppermint Extract', 'Dark Chocolate Chips', 'Egg Yolks', 'Natural Green Coloring'],
+        nutritionFacts: { calories: 240, totalFat: 13, saturatedFat: 8, sugars: 23, protein: 3, sodium: 65 },
+        stock: 85,
+        sku: 'ICE-MIN-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Soy'],
+        tags: ['mint', 'chocolate chip', 'refreshing', 'popular'],
+        isFeatured: true,
+        soldCount: 198,
+        rating: 4.6,
+        reviewCount: 54,
+      },
+      {
+        name: 'Pistachio Royale',
+        description: 'Luxurious pistachio ice cream with real roasted pistachios throughout. A Middle-Eastern inspired delicacy with a distinctive nutty sweetness.',
+        price: 6.49,
+        comparePrice: 7.49,
+        category: catMap['Nuts'],
+        flavor: 'Pistachio',
+        ingredients: ['Cream', 'Sugar', 'Roasted Pistachios', 'Egg Yolks', 'Almond Extract'],
+        nutritionFacts: { calories: 260, totalFat: 16, saturatedFat: 7, sugars: 19, protein: 5, sodium: 60 },
+        stock: 60,
+        sku: 'ICE-NUT-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Tree Nuts'],
+        tags: ['pistachio', 'nuts', 'premium', 'luxury'],
+        isFeatured: false,
+        soldCount: 87,
+        rating: 4.7,
+        reviewCount: 31,
+      },
+      {
+        name: 'Mango Sorbet',
+        description: 'Dairy-free mango sorbet made with Alphonso mangoes. Intensely fruity, refreshing, and perfect for lactose-intolerant ice cream lovers.',
+        price: 4.99,
+        category: catMap['Fruit'],
+        flavor: 'Mango',
+        ingredients: ['Alphonso Mango Puree', 'Sugar', 'Lemon Juice', 'Water'],
+        nutritionFacts: { calories: 160, totalFat: 0, saturatedFat: 0, sugars: 32, protein: 1, sodium: 15 },
+        stock: 100,
+        sku: 'ICE-FRU-002',
+        weight: 450,
+        servingSize: '100g',
+        allergens: [],
+        tags: ['mango', 'sorbet', 'dairy-free', 'vegan', 'summer'],
+        isFeatured: true,
+        soldCount: 156,
+        rating: 4.5,
+        reviewCount: 43,
+      },
+      {
+        name: 'Cookies & Cream',
+        description: 'Vanilla ice cream packed with crushed chocolate sandwich cookies. A beloved American classic that never gets old.',
+        price: 5.29,
+        category: catMap['Vanilla'],
+        flavor: 'Cookies & Cream',
+        ingredients: ['Cream', 'Sugar', 'Chocolate Sandwich Cookies', 'Vanilla Extract', 'Egg Yolks'],
+        nutritionFacts: { calories: 270, totalFat: 14, saturatedFat: 8, sugars: 26, protein: 3, sodium: 120 },
+        stock: 130,
+        sku: 'ICE-VAN-002',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Wheat', 'Soy'],
+        tags: ['cookies', 'oreo', 'vanilla', 'classic', 'american'],
+        isFeatured: true,
+        soldCount: 445,
+        rating: 4.8,
+        reviewCount: 118,
+      },
+      {
+        name: 'Pumpkin Spice',
+        description: 'Limited edition fall special! Creamy pumpkin ice cream with warming spices of cinnamon, nutmeg, and ginger. Autumn in every scoop.',
+        price: 5.99,
+        comparePrice: 6.99,
+        category: catMap['Seasonal'],
+        flavor: 'Pumpkin',
+        ingredients: ['Cream', 'Pumpkin Puree', 'Sugar', 'Cinnamon', 'Nutmeg', 'Ginger', 'Egg Yolks'],
+        nutritionFacts: { calories: 230, totalFat: 12, saturatedFat: 7, sugars: 22, protein: 3, sodium: 60 },
+        stock: 45,
+        sku: 'ICE-SEA-001',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs'],
+        tags: ['pumpkin', 'seasonal', 'fall', 'spice', 'limited'],
+        isFeatured: false,
+        soldCount: 67,
+        rating: 4.4,
+        reviewCount: 22,
+      },
+      {
+        name: 'Triple Chocolate Brownie',
+        description: 'Three types of chocolate (white, milk, dark) with real brownie chunks. The ultimate chocolate lover\'s fantasy.',
+        price: 5.99,
+        category: catMap['Chocolate'],
+        flavor: 'Triple Chocolate',
+        ingredients: ['Cream', 'Dark Chocolate', 'Milk Chocolate', 'White Chocolate', 'Brownie Chunks', 'Sugar', 'Egg Yolks'],
+        nutritionFacts: { calories: 320, totalFat: 18, saturatedFat: 11, sugars: 30, protein: 5, sodium: 90 },
+        stock: 75,
+        sku: 'ICE-CHO-002',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Wheat', 'Soy'],
+        tags: ['chocolate', 'triple chocolate', 'brownie', 'indulgent'],
+        isFeatured: true,
+        soldCount: 278,
+        rating: 4.9,
+        reviewCount: 92,
+      },
+      {
+        name: 'Raspberry Swirl',
+        description: 'Creamy vanilla base with tangy raspberry swirls throughout. The perfect blend of sweet and tart.',
+        price: 4.99,
+        category: catMap['Fruit'],
+        flavor: 'Raspberry',
+        ingredients: ['Cream', 'Sugar', 'Fresh Raspberries', 'Vanilla Extract', 'Egg Yolks'],
+        nutritionFacts: { calories: 210, totalFat: 10, saturatedFat: 6, sugars: 23, protein: 3, sodium: 50 },
+        stock: 90,
+        sku: 'ICE-FRU-003',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs'],
+        tags: ['raspberry', 'fruit', 'swirl', 'tangy'],
+        isFeatured: false,
+        soldCount: 134,
+        rating: 4.5,
+        reviewCount: 38,
+      },
+      {
+        name: 'Salted Caramel Pretzel',
+        description: 'Rich caramel ice cream with sea salt and crunchy pretzel pieces. The perfect sweet-salty-crunchy combination.',
+        price: 5.79,
+        comparePrice: 6.49,
+        category: catMap['Seasonal'],
+        flavor: 'Salted Caramel',
+        ingredients: ['Cream', 'Caramel Sauce', 'Sea Salt', 'Pretzel Pieces', 'Sugar', 'Egg Yolks'],
+        nutritionFacts: { calories: 290, totalFat: 14, saturatedFat: 8, sugars: 28, protein: 4, sodium: 180 },
+        stock: 55,
+        sku: 'ICE-SEA-002',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Wheat'],
+        tags: ['salted caramel', 'pretzel', 'sweet', 'salty'],
+        isFeatured: true,
+        soldCount: 189,
+        rating: 4.7,
+        reviewCount: 56,
+      },
+      {
+        name: 'Peanut Butter Cup',
+        description: 'Creamy peanut butter ice cream with chocolate peanut butter cups mixed in. A Reese\'s lover\'s dream.',
+        price: 5.49,
+        category: catMap['Nuts'],
+        flavor: 'Peanut Butter',
+        ingredients: ['Cream', 'Peanut Butter', 'Sugar', 'Chocolate Peanut Butter Cups', 'Egg Yolks'],
+        nutritionFacts: { calories: 300, totalFat: 17, saturatedFat: 8, sugars: 24, protein: 6, sodium: 140 },
+        stock: 70,
+        sku: 'ICE-NUT-002',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Peanuts', 'Soy'],
+        tags: ['peanut butter', 'chocolate', 'cups', 'nuts'],
+        isFeatured: false,
+        soldCount: 213,
+        rating: 4.8,
+        reviewCount: 71,
+      },
+      {
+        name: 'Mint Chip Gelato',
+        description: 'Italian-style mint gelato with premium dark chocolate shavings. Lighter than ice cream with an intensely fresh mint flavor.',
+        price: 5.99,
+        comparePrice: 7.00,
+        category: catMap['Mint'],
+        flavor: 'Mint Chip',
+        ingredients: ['Whole Milk', 'Sugar', 'Peppermint', 'Dark Chocolate Shavings', 'Egg Yolks'],
+        nutritionFacts: { calories: 190, totalFat: 8, saturatedFat: 5, sugars: 21, protein: 4, sodium: 45 },
+        stock: 65,
+        sku: 'ICE-MIN-002',
+        weight: 450,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs'],
+        tags: ['mint', 'gelato', 'italian', 'chocolate chip'],
+        isFeatured: false,
+        soldCount: 98,
+        rating: 4.6,
+        reviewCount: 29,
+      },
+      {
+        name: 'Birthday Cake Blast',
+        description: 'Colorful sprinkle-filled birthday cake ice cream. Tastes like a celebration in every scoop with rainbow sprinkles and cake pieces.',
+        price: 5.29,
+        category: catMap['Vanilla'],
+        flavor: 'Birthday Cake',
+        ingredients: ['Cream', 'Sugar', 'Cake Pieces', 'Rainbow Sprinkles', 'Vanilla Extract', 'Egg Yolks', 'Food Coloring'],
+        nutritionFacts: { calories: 260, totalFat: 12, saturatedFat: 7, sugars: 27, protein: 3, sodium: 75 },
+        stock: 95,
+        sku: 'ICE-VAN-003',
+        weight: 500,
+        servingSize: '100g',
+        allergens: ['Milk', 'Eggs', 'Wheat', 'Soy'],
+        tags: ['birthday', 'cake', 'sprinkles', 'fun', 'kids'],
+        isFeatured: false,
+        soldCount: 165,
+        rating: 4.4,
+        reviewCount: 48,
+      },
+      {
+        name: 'Lemon Sorbet',
+        description: 'Bright and tangy lemon sorbet made with fresh-squeezed lemons. Dairy-free, refreshing, and perfect for hot summer days.',
+        price: 4.49,
+        category: catMap['Fruit'],
+        flavor: 'Lemon',
+        ingredients: ['Fresh Lemon Juice', 'Lemon Zest', 'Sugar', 'Water'],
+        nutritionFacts: { calories: 140, totalFat: 0, saturatedFat: 0, sugars: 30, protein: 0, sodium: 10 },
+        stock: 110,
+        sku: 'ICE-FRU-004',
+        weight: 450,
+        servingSize: '100g',
+        allergens: [],
+        tags: ['lemon', 'sorbet', 'dairy-free', 'vegan', 'refreshing'],
+        isFeatured: false,
+        soldCount: 201,
+        rating: 4.6,
+        reviewCount: 63,
+      },
+    ];
+
+    const products = await Product.insertMany(productData);
+    console.log(`${products.length} products created`);
+
+    // Create coupons
+    const couponData = [
+      {
+        code: 'WELCOME10',
+        description: '10% off for new customers',
+        type: 'percentage',
+        value: 10,
+        minOrderAmount: 15,
+        maxDiscount: 20,
+        usageLimit: 1000,
+        isActive: true,
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      },
+      {
+        code: 'SUMMER20',
+        description: '20% off all orders this summer',
+        type: 'percentage',
+        value: 20,
+        minOrderAmount: 25,
+        maxDiscount: 30,
+        usageLimit: 500,
+        isActive: true,
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      },
+      {
+        code: 'ICECREAM15',
+        description: '$15 off orders over $50',
+        type: 'fixed',
+        value: 15,
+        minOrderAmount: 50,
+        usageLimit: 200,
+        isActive: true,
+        expiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+      },
+    ];
+
+    const coupons = await Coupon.insertMany(couponData);
+    console.log(`${coupons.length} coupons created`);
+
+    console.log('\n=== Seed completed successfully! ===');
+    console.log(`Admin: ${admin.email} / ${process.env.ADMIN_PASSWORD || 'Admin123!'}`);
+    console.log('Categories:', categories.map((c) => c.name).join(', '));
+    console.log(`Products: ${products.length} ice cream products`);
+    console.log('Coupons:', coupons.map((c) => c.code).join(', '));
+
+    process.exit(0);
+  } catch (error) {
+    console.error('Seed failed:', error.message);
+    process.exit(1);
+  }
+};
+
+seed();
