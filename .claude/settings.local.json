@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/HP/Pictures/Screenshots/**)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(node:*)",
+      "Bash(Get-Content \"C:\\Users\\HP\\Desktop\\ice cream\\backend\\logs\\error.log\" -Tail 30)",
+      "Bash(if exist .next rd /s /q .next)",
+      "Bash(if exist \"C:\\Users\\HP\\Desktop\\ice cream\\frontend\\.next\" rd /s /q \"C:\\Users\\HP\\Desktop\\ice cream\\frontend\\.next\")",
+      "Bash(netstr -ano:*)",
+      "Bash(if exist node_modules.cache rd /s /q node_modules.cache)",
+      "Bash(/dev/null)",
+      "Bash(powershell -Command \"Stop-Process -Id 21476, 3512, 8964, 20704 -Force\")",
+      "Bash(powershell -Command \"cd frontend; if (Test-Path .next) { Remove-Item -Recurse -Force .next }; if (Test-Path node_modules\\.cache) { Remove-Item -Recurse -Force node_modules\\.cache }; Write-Host ''Cache cleaned successfully''\")",
+      "Bash(powershell -Command:*)",
+      "Bash(PORT=3005 npm run dev:*)",
+      "Bash(ipconfig:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
